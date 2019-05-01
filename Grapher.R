@@ -1,8 +1,18 @@
+# Time Series GraphR:
+# WARNING: this function only works on batches where one parameter and one instruemnt 
+# is being used. You will not see accurate results otherwise. 
+# PURPOSE: This will extract relevant information to review (study ID , location ID & SSLID pairing, matrix-source combos
+# Will also graph using dygraphs allowing you to zoom into shorter ranges and highlight areas of concern for the submitter. 
+# The activity summary will summarize all batches for a project and returns the paramater and field collection date ranges 
+# for each location. 
+# Improvements: would be nice to graph qualified values as a second series in red. Currently, qualified valuse are printed
+# to a table in the global environment. 
+
 library(dygraphs)
 library(dplyr)
 library(readr)
 ############################ CHOOSE DIRECTORY ############################
-files <- choose.files() #Choose one or more T-Series files to view
+files <- choose.files() #Choose one or more Time-Series files to view
 ##################### CHANGE INDEX AND RUN 1 AT A TIME  ###################
 
 graphEIM <- function(i = 1){
@@ -17,7 +27,6 @@ graphEIM <- function(i = 1){
                Method = unique(df[,20])
                )	
           )                    
-     
      ts_df <- df %>%																			## the next 4 lines convert the batch to an xts object. 
      mutate(my_time = lubridate::mdy_hms(paste(df$Start_Date, " ", df$Start_Time))) %>%
      select(my_time, Result_Value)
@@ -58,8 +67,8 @@ for (file in files) {                        ## read each file into temp df
                     header = TRUE,
                     check.names = FALSE,
                     as.is = TRUE)
-     df$batchname <- basename(file)             ## label each row with source batch file name
-     all <- rbind(all, df)                      ## bind df to all data
+     df$batchname <- basename(file)          ## label each row with source batch file name
+     all <- rbind(all, df)                   ## bind df to all data
 }
 
 all$Start_Date <- gsub(" .*$", "", all$Start_Date)
